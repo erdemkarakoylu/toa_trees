@@ -3,10 +3,18 @@ from p1_model_trainer import XGBoostTrainer
 from p2_nested_cv import NestedCV
 from p3_model_evaluator import ModelEvaluator
 from sklearn.model_selection import train_test_split
+from pathlib import Path
+from logger_utils import logger
+
 
 if __name__ == "__main__":
     # Data Loading and Preparation
-    data_loader = DataLoader("data/path")  # Update with your data path
+
+    project_path = Path(__file__).resolve().parent
+    data_path = project_path.parent / 'data'
+    logger.info("Loading data.")
+
+    data_loader = DataLoader(data_path)  # Update with your data path
     dX, dY = data_loader.load_data()
 
     # Splitting Data
