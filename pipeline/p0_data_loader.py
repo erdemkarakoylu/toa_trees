@@ -1,32 +1,41 @@
+from pathlib import Path
+
 import pandas as pd
-from logger_utils import logger
+
+from pipeline.logger_utils import logger
 
 
 class DataLoader:
     def __init__(
             self, data_path, rrs_file='df_nwa_rrs.pqt',
             phy_file='df_nwa_phyto.pqt'):
-        preprocessed_data_path = data_path / '02_extracted' / 'pcc_sims/subset'
+        data_path = Path(data_path).resolve()
+        preprocessed_data_path = data_path #/ '02_extracted/pcc_sims/subset'
         self.data_path = preprocessed_data_path
         self.X_name = rrs_file
         self.Y_name = phy_file
         logger.debug(f"Data directory set to {self.data_path.as_posix()}")
         logger.debug(f'Rrs file used: {self.X_name}')
         logger.debug(f'Phytoplankton file use {self.Y_name}')
-
+   
     def load_data(self):
         """Loads and preprocesses data."""
-        # Load data from your source (e.g., CSV files)
         try:
-            dX = pd.read_parquet(self.data_path / self.X_name)
-            dY = pd.read_parquet(self.data_path / self.Y_name)
+            dX = pd.read_parquet(self.data_path / self.X_name, engine='pyarrow')
+            dY = pd.read_parquet(self.data_path / self.Y_name, engine='pyarrow')
+
             # Data preprocessing (handle missing values, type conversion, etc.)
-            dX = dX.astype(float)  # Ensure features are numerical
-            dY = dY.astype(float)  # Ensure targets are numerical
+            dX = dX.astype(float) 
+            dY = dY.astype(float) 
+
             return dX, dY
-                     
+
         except FileNotFoundError:
-            logger.error(f'Data files not found')
-        
-    
-    
+            logger.error(f"Error: Files not found in directory {self.data_path}")
+            return None, None  # Return None on error
+        except pd.errors.EmptyDataError:
+            logger.error(f"Error: Empty data files in directory {self.data_path}")
+            return None, None
+        except Exception as e:  # Catch other potential exceptions
+            logger.error(f"Error loading data: {e}")
+            return None, None 
