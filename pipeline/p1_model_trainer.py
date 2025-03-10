@@ -1,5 +1,5 @@
 import mlflow
-import mlflow.xgboost
+#import mlflow.xgboost
 from sklearn.multioutput import MultiOutputRegressor
 import xgboost as xgb
 import numpy as np
